@@ -55,7 +55,8 @@ namespace SkypeBot2
         {
             try
             {
-                IRCListener.SendMessage(message);
+                string pureMessage = message.Replace("\n", "| ");
+                IRCListener.SendMessage(pureMessage);
             }
             catch (Exception ex)
             {

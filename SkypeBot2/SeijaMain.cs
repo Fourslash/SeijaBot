@@ -20,7 +20,7 @@ namespace SkypeBot2
         const string kantaekonfa = "#nekonyak/$88001bf7f531a99e";
         //Skype skype;
         //ChatMessage currentMessage;
-        string askedName;
+        //string askedName;
 
         bool IsYoutubeSilent = false;
         int shushTicks = 0;
@@ -161,10 +161,9 @@ namespace SkypeBot2
                     }
                     //else if (no_copypasterino() == true)
                     //    return;
-                    else if (isAsked(provider) == true)
+                    else if (isAsked(provider) == false)
                     {
-                        if (SeijaAsk(provider) == true)
-                            return;
+                        
                         if (SHUSH(provider) == true)
                             return;
 
@@ -440,19 +439,14 @@ cutString.Contains("\n"))
 
         private bool isAsked(ChatProvider provider)
         {
-            askedName = string.Empty;
-            bool isRight = false;
             foreach (string name in SeijaCommander.Settings.Values.botNames)
                 if (provider.inMessageText.Contains(name))
-                {
-                    askedName = name;
-                    isRight = true;
-                }
-            return isRight;
+                    return SeijaAsk(provider, name);
+            return false;
         }
 
 
-        private bool SeijaAsk(ChatProvider provider)
+        private bool SeijaAsk(ChatProvider provider, string askedName)
         {
             if (provider.inMessageText.IndexOf(",") == (provider.inMessageText.IndexOf(askedName) + askedName.Length) && provider.inMessageText.Contains("?"))
             {
