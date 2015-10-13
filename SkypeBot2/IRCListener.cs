@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ChatSharp;
 using System.Threading;
+using System.IO;
 
 namespace SkypeBot2
 {
@@ -36,23 +37,46 @@ namespace SkypeBot2
                 SeijaHelper.SendToMaster("Cant join IRC server " + ex.Message);
             }
         }
-
+        static void writeLog(string msg,string filename)
+        {
+            try
+            {
+                using (System.IO.StreamWriter file = File.AppendText(@"Settings\" + filename))
+                {
+                    file.WriteLine(DateTime.Now.ToString("u") + " " + msg);
+                }
+            }
+            catch (Exception ex)
+            {
+                SeijaHelper.SendToMaster("Cantwrite irc log: " + ex.Message);
+            }
+        }
         private static void IRCListenerInit() 
         {
             try
             {
-                client = new IrcClient("irc.twitch.tv", new IrcUser("seijabot", "seijabot", "oauth:iggb37o4zs4eq2jd5zu5qtsemrjbcb"));
+                client = new IrcClient("irc.twitch.tv", new IrcUser("seijabot", "seijabot", SeijaCommander.Settings.Values.IRCkey));
                 client.ConnectionComplete += (s, ex) =>
                 {                  
-                    //SeijaHelper.SendToMaster("IRC INITED");
                     joinServer();
                 };
                 client.ChannelMessageRecieved += (s, ex) =>
                 {
-                   // SeijaHelper.SendToMaster(ex.PrivateMessage.Message+":"+ ex.PrivateMessage.User.Nick);
                     SeijaCommander.Seija.ProcessMSG(new IRCProvider(ex.PrivateMessage.Message, ex.PrivateMessage.User.Nick));
-                    //SendMessage("test");
+                    writeLog(ex.IrcMessage.RawMessage, "IRCchhannelMsgRaw.txt");
+                    writeLog(ex.IrcMessage.Command, "IRCchhannelMsgRawCommands.txt");
+                    writeLog(ex.PrivateMessage.Message, "IRCchhannelMsg.txt");
+
                 };
+                client.UserJoinedChannel += (s, ex) =>
+                {
+                    if (ex.User.Nick.ToLower() != "seijabot")
+                    {
+                        string res = "New user detected: " + ex.User.Nick;
+                        SeijaHelper.SendToMaster(res);
+                        writeLog(res, "IRCusers.txt");
+                    }
+                }; 
                 
                 client.ConnectAsync();
                  for (int i=0 ;i<10; i++)
@@ -87,21 +111,6 @@ namespace SkypeBot2
                 SeijaHelper.SendToMaster("wut: " + ex.Message);
             }
         }
-        //public static IRCListener Instance
-        //{
-        //    get
-        //    {
-        //        if (instance == null)
-        //        {
-        //            instance = new IRCListener();
-        //        }
-        //        return instance;
-        //    }
-        //    set
-        //    {
-        //        instance = new IRCListener();
-        //    }
-        //}
         public static void SendMessage(string message)
         {
             try

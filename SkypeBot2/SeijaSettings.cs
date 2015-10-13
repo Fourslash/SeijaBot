@@ -21,6 +21,7 @@ namespace SkypeBot2
        public string masterName;
        public string commandSymvol;
        public string homeconfa;
+       public string IRCkey;
        public DateTime lastRestart;
        public List<String> botNames;
        public List<String> Streams;
@@ -65,8 +66,8 @@ namespace SkypeBot2
                  Values.commandSymvol = "!";
                  Values.homeconfa = "#splasher-_-/$omgwtfgglol;7fa80f21182dcf70";
                  Values.lastRestart = DateTime.Now;
-                 Values.botNames = new List<string>
-                 
+                 Values.IRCkey = "";
+                 Values.botNames = new List<string>                               
             {
                 "Сейджа",
                 "Сейдзя",

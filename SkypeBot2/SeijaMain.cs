@@ -161,12 +161,11 @@ namespace SkypeBot2
                     }
                     //else if (no_copypasterino() == true)
                     //    return;
-                    else if (isAsked(provider) == false)
+                    else if (isAsked(provider) == true)
                     {
                         
                         if (SHUSH(provider) == true)
                             return;
-
 
                     }
                     else if (provider.inMessageText.ToLower().Contains("youtu") && provider.chatName != kantaekonfa)
@@ -207,8 +206,9 @@ namespace SkypeBot2
             if (answ != string.Empty)
                 provider.SendMessage(answ,provider.chatName); 
             return;
-
         }
+
+
 
         private bool SHUSH(ChatProvider provider)
         {
