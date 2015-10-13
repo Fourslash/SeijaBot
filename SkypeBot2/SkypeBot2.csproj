@@ -35,6 +35,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="ChatSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ChatSharp.1.0.1\lib\net45\ChatSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FourslashNettest">
       <HintPath>..\..\FourslashNettest\FourslashNettest\bin\Debug\FourslashNettest.dll</HintPath>
     </Reference>
@@ -72,9 +76,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ChatProvider.cs" />
     <Compile Include="Conf.cs" />
     <Compile Include="DotaLongueChecker.cs" />
     <Compile Include="DynamicJson.cs" />
+    <Compile Include="IRCListener.cs" />
     <Compile Include="SeijaCommander.cs" />
     <Compile Include="SeijaHelper.cs" />
     <Compile Include="SeijaMain.cs" />

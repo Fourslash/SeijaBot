@@ -27,7 +27,7 @@ namespace SkypeBot2
         public bool isMoraleCommand = false;
         bool isEnabled = true;
         bool isMasterOnly = false;
-        protected Func<string, ChatMessage, bool> commandDelegate;
+        protected Func<string, ChatProvider, bool> commandDelegate;
         static List<string> disabledMessages = new List<string>
         {
             "Команда выключена",
@@ -205,26 +205,26 @@ namespace SkypeBot2
         }
 
        
-        public bool TryExecute(string ar1, ChatMessage msg)
+        public bool TryExecute(string ar1, ChatProvider provider)
         {
             if (isEnabled == true)
             {
-                if (isMasterOnly == true && msg.Sender.Handle != SeijaCommander.Settings.Values.masterName)
+                if (isMasterOnly == true && provider.senderName.ToLower() != SeijaCommander.Settings.Values.masterName.ToLower())
                 {
-                    msg.Chat.SendMessage(SeijaHelper.GetRandomMessage(rejectedMessages));
+                    provider.SendMessage(SeijaHelper.GetRandomMessage(rejectedMessages));
                     return false;
                 }
                 else
-                    return commandDelegate(ar1, msg);
+                    return commandDelegate(ar1, provider);
             }
             else
             {
-                msg.Chat.SendMessage(SeijaHelper.GetRandomMessage(disabledMessages));
+                provider.SendMessage(SeijaHelper.GetRandomMessage(disabledMessages));
                 return false;
             }
            
         }
-        public BotCommand(string name, Func<string, ChatMessage, bool> del)
+        public BotCommand(string name, Func<string, ChatProvider, bool> del)
         {
             commandDelegate=del;
             commandName=name;
@@ -285,7 +285,7 @@ namespace SkypeBot2
                 morale = value;
             }
         }
-        public MoraleCommand(string name, Func<string, ChatMessage, bool> del)
+        public MoraleCommand(string name, Func<string, ChatProvider, bool> del)
             : base(name, del)
         {
             restTimer = new System.Windows.Threading.DispatcherTimer();
@@ -300,18 +300,18 @@ namespace SkypeBot2
             restTimer.Tick += RestTick;
             isMoraleCommand = true;
         }
-        public bool TryExecute(string ar1, ChatMessage msg)
+        public bool TryExecute(string ar1, ChatProvider provider)
         {
             if (morale > 0)
             {
                 morale--;
                 restTimer.Start();
-                return base.TryExecute(ar1, msg);
+                return base.TryExecute(ar1, provider);
                 //commandDelegate(ar1, msg);
             }
             else
             {
-                msg.Chat.SendMessage(SeijaHelper.GetRandomMessage(fatigueMessages));
+                provider.SendMessage(SeijaHelper.GetRandomMessage(fatigueMessages));
                 return false;
             }
         }

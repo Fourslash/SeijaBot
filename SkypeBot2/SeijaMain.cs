@@ -19,7 +19,7 @@ namespace SkypeBot2
         const string homeconfa = "#splasher-_-/$omgwtfgglol;7fa80f21182dcf70";
         const string kantaekonfa = "#nekonyak/$88001bf7f531a99e";
         //Skype skype;
-        ChatMessage currentMessage;
+        //ChatMessage currentMessage;
         string askedName;
 
         bool IsYoutubeSilent = false;
@@ -124,7 +124,7 @@ namespace SkypeBot2
         {
             List<string> motd = new List<string>
             {
-                @"/me версии ""Сестренка!"" запущена",
+                @"/me версии ""TWITCH PogChamp"" запущена",
                 @"/me запущена и готова спамить (✿◕⁀◕)",
                 @"Опять перезапуск? http://d.d.doushio.com/nagashi/",
                 @"From the frozen pool, I rise ಠ▃ಠ",
@@ -137,66 +137,43 @@ namespace SkypeBot2
             SeijaCommander.skype.get_Chat(homeconfa).SendMessage(SeijaHelper.GetRandomMessage(motd));
         }
 
-        //мертво
-        public void ProcessNewMessage(object obj)
+
+        public void ProcessMSG(ChatProvider provider)
         {
-            try
+
+            if (provider is SkypeProvider)
             {
-                ChatMessage msg = (ChatMessage)obj;
-                SeijaHelper.SendToMaster(msg.Body);
-                //SeijaHelper.SendToMaster("Процесс запушен");
-                if (Confs.FindIndex(x => x.SkypeName == msg.Chat.Name) == -1)
+               // currentMessage = msg;
+                TimeSpan ts = provider.sentTime - DateTime.Now;
+                if (ts.TotalMinutes > 5)
                 {
-                    SeijaHelper.SendToMaster("CHAT:::::::::::"+msg.Chat.Name);
-                    Confs.Add(new Conf(msg.Chat.Name));
-                    //  SeijaHelper.SendToMaster("Добавлена конференция" +msg.Chat.Name);
+                    return;
                 }
-                Conf temp = Confs.Find(x => x.SkypeName == msg.Chat.Name);
-                SeijaHelper.SendToMaster("CHAT++++++++++" + temp.SkypeName);
-                //SeijaHelper.SendToMaster("Добавляю сообщение");
-                temp.AddMessage(msg);
             }
-            catch(Exception ex)
-            {
-                SeijaHelper.SendToMaster(ex.Message);
-            }
-
-            //ProcessMSG(msg);
-        }
-
-        public void ProcessMSG(ChatMessage msg)
-        {
-            //cnf.
-            currentMessage = msg;
-            TimeSpan ts = msg.Timestamp - DateTime.Now;
-            if (ts.TotalMinutes > 5)
-            {
-                //cnf.processNext();
-                return;
-            }
-            if (currentMessage.Sender.Handle != SeijaCommander.Settings.Values.botName)
+            if (provider.senderName.ToLower() != SeijaCommander.Settings.Values.botName.ToLower())
             {
                 try
                 {
-                    if (ProcessCommand() == true)
+                    if (ProcessCommand(provider) == true)
                     {
                         //cnf.processNext();
                         return;
                     }
                     //else if (no_copypasterino() == true)
                     //    return;
-                    else if (isAsked() == true)
+                    else if (isAsked(provider) == true)
                     {
-                        if (SeijaAsk() == true)
+                        if (SeijaAsk(provider) == true)
                             return;
-                        if (SHUSH(msg) == true)
+                        if (SHUSH(provider) == true)
                             return;
 
 
                     }
-                    else if (msg.Body.ToLower().Contains("youtu") && msg.Chat.Name != kantaekonfa)
+                    else if (provider.inMessageText.ToLower().Contains("youtu") && provider.chatName != kantaekonfa)
                     {
-                       /*string answ=*/checkYoutube(msg);
+                        /*string answ=*/
+                        checkYoutube(provider);
                        //if (answ != string.Empty)
                        //    msg.Chat.SendMessage(answ);
                     }
@@ -204,7 +181,7 @@ namespace SkypeBot2
                 catch (Exception ex)
                 {
                     //msg.Chat.SendMessage("Error: "+ex.Message);
-                    SeijaCommander.skype.SendMessage(SeijaCommander.Settings.Values.masterName, msg.ChatName + "\n" + ex.Message);
+                    SeijaCommander.skype.SendMessage(SeijaCommander.Settings.Values.masterName, provider.chatName + "\n" + ex.Message);
                     SeijaHelper.write_log(ex.Message);
                 }
                 finally
@@ -213,10 +190,10 @@ namespace SkypeBot2
                 }
             }
         }
-        private void checkYoutube(ChatMessage msg)
+        private void checkYoutube(ChatProvider provider)
         {
 
-            if (msg.Sender.Handle == SeijaCommander.Settings.Values.masterName && IsYoutubeSilent==true)
+            if (provider.senderName.ToLower() == SeijaCommander.Settings.Values.masterName.ToLower() && IsYoutubeSilent == true)
             {
                 IsYoutubeSilent = false;
                 shushTimer.Stop();
@@ -224,19 +201,19 @@ namespace SkypeBot2
             }
 
 
-            string v=getVideoId(msg.Body);
+            string v=getVideoId(provider.inMessageText);
             if (v == string.Empty)
                 return;
             string answ= getVideoName(v);
             if (answ != string.Empty)
-                msg.Chat.SendMessage(answ);
+                provider.SendMessage(answ,provider.chatName); 
             return;
 
         }
 
-        private bool SHUSH(ChatMessage msg)
+        private bool SHUSH(ChatProvider provider)
         {
-            if (msg.Sender.Handle != SeijaCommander.Settings.Values.masterName)
+            if (provider.senderName.ToLower() != SeijaCommander.Settings.Values.masterName.ToLower())
                 return false;
 
             List<string> SHUSHes = new List<string> 
@@ -255,7 +232,7 @@ namespace SkypeBot2
             };
             foreach (string str in SHUSHes)
             {
-                if (msg.Body.ToLower().Contains(str))
+                if (provider.inMessageText.ToLower().Contains(str))
                 {
                     IsYoutubeSilent = true;
                     startShushTimer();
@@ -413,63 +390,60 @@ cutString.Contains("\n"))
             }
             
         }
+        //private void checkForTenshi(object str_obj)
+        //{
+        //    try
+        //    {
+        //        string str = (string)str_obj;
+        //        List<string> words = new List<string>(str.Split(' ').ToArray());
+        //        foreach (string word in words)
+        //        {
+        //            if (word.Contains("http"))
+        //            {
+        //                TenshiChecker check = new TenshiChecker(word, SeijaCommander.skype);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        SeijaHelper.write_log(ex.Message);
+        //    }
+        //}
 
-
-        private void checkForTenshi(object str_obj)
+        private bool no_copypasterino(ChatProvider provider) //мне очень стыдно за это функцию но мне слишком лень писать нормальный код
         {
-            try
-            {
-                string str = (string)str_obj;
-                List<string> words = new List<string>(str.Split(' ').ToArray());
-                foreach (string word in words)
-                {
-                    if (word.Contains("http"))
-                    {
-                        TenshiChecker check = new TenshiChecker(word, SeijaCommander.skype);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                SeijaHelper.write_log(ex.Message);
-            }
-
-        }
-
-        private bool no_copypasterino() //мне очень стыдно за это функцию но мне слишком лень писать нормальный код
-        {
-            if (currentMessage.Body.Contains("no copy"))
+            if (provider.inMessageText.Contains("no copy"))
             {
                 string[] cancer = { "(no space)", "(no spaceerino)", "Kappa", "4Head" };
-                string temp = currentMessage.Body;
+                string temp = provider.inMessageText;
                 int t = SeijaHelper.FixedRandom(1, 3);
                 if (t == 1)
                     temp += " " + cancer[SeijaHelper.FixedRandom(0, cancer.Length)];
                 System.Threading.Thread.Sleep(SeijaHelper.FixedRandom(1500, 3500));
-                currentMessage.Chat.SendMessage(temp);
+                provider.SendMessage(temp,provider.chatName);
                 return true;
             }
-            else if (currentMessage.Body.Contains("но копи"))
+            else if (provider.inMessageText.Contains("но копи"))
             {
                 string[] cancer = { "(но спейс)", "(но спейсерино)", "Kappa", "4Head" };
-                string temp = currentMessage.Body;
+                string temp = provider.inMessageText;
                 int t = SeijaHelper.FixedRandom(1, 3);
                 if (t == 1)
                     temp += " " + cancer[SeijaHelper.FixedRandom(0, cancer.Length)];
                 System.Threading.Thread.Sleep(SeijaHelper.FixedRandom(1500, 3500));
-                currentMessage.Chat.SendMessage(temp);
+                provider.SendMessage(temp, provider.chatName);
                 return true;
             }
             return false;
         }
 
 
-        private bool isAsked()
+        private bool isAsked(ChatProvider provider)
         {
             askedName = string.Empty;
             bool isRight = false;
             foreach (string name in SeijaCommander.Settings.Values.botNames)
-                if (currentMessage.Body.Contains(name))
+                if (provider.inMessageText.Contains(name))
                 {
                     askedName = name;
                     isRight = true;
@@ -478,9 +452,9 @@ cutString.Contains("\n"))
         }
 
 
-        private bool SeijaAsk()
+        private bool SeijaAsk(ChatProvider provider)
         {
-            if (currentMessage.Body.IndexOf(",") == (currentMessage.Body.IndexOf(askedName) + askedName.Length) && currentMessage.Body.Contains("?"))
+            if (provider.inMessageText.IndexOf(",") == (provider.inMessageText.IndexOf(askedName) + askedName.Length) && provider.inMessageText.Contains("?"))
             {
                 //if (currentMessage.Sender.Handle == "zoljiin")
                 //{
@@ -527,7 +501,7 @@ cutString.Contains("\n"))
                 }
                 finally
                 {
-                    currentMessage.Chat.SendMessage(resultString);
+                    provider.SendMessage(resultString);
                 }
                 return true;
             }
@@ -540,9 +514,9 @@ cutString.Contains("\n"))
 
         }
 
-        private bool ProcessCommand()
+        private bool ProcessCommand(ChatProvider provider)
         {
-            string message = currentMessage.Body;
+            string message = provider.inMessageText;
             if (message.IndexOf(SeijaCommander.Settings.Values.commandSymvol) == 0)
             {
                 message = message.Remove(0, SeijaCommander.Settings.Values.commandSymvol.Length);
@@ -559,18 +533,18 @@ cutString.Contains("\n"))
                 }
                 BotCommand cmd = commands.Find(x => x.CommandName == command);
                 if (cmd == null)
-                    return ProcessSimpleCommand(message, currentMessage);
+                    return ProcessSimpleCommand(message, provider);
                 else
                 {
                     if (cmd.isMoraleCommand == true)
-                        return ((MoraleCommand)cmd).TryExecute(arg, currentMessage);
+                        return ((MoraleCommand)cmd).TryExecute(arg, provider);
                     else
-                        return cmd.TryExecute(arg, currentMessage);
+                        return cmd.TryExecute(arg, provider);
                 }
             }
             return false;
         }
-        private bool ProcessSimpleCommand(string command, ChatMessage ms)
+        private bool ProcessSimpleCommand(string command, ChatProvider provider)
         {
             string res = "";
             var keys = new List<string>(SeijaCommander.SimpleCommands.Pairs.Keys);
@@ -583,7 +557,7 @@ cutString.Contains("\n"))
             //res = res.Replace("\\n", "\n");
             if (res == "")
                 return false;
-            ms.Chat.SendMessage(res);
+            provider.SendMessage(res);
             return true;
         }
 

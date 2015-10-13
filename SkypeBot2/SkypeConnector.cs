@@ -108,7 +108,7 @@ namespace SkypeBot2
                     //Thread T= new Thread(SeijaCommander.Seija.ProcessNewMessage);
                     //T.Start(msg);
 
-                    SeijaCommander.Seija.ProcessMSG(msg);
+                    SeijaCommander.Seija.ProcessMSG(new SkypeProvider(msg));
                    // SeijaHelper.SendToMaster("начало обработки, запуск процесса");
                       // SeijaCommander.Seija.ProcessNewMessage(msg);
                 }

@@ -399,8 +399,8 @@ public class DongerBattler:ICloneable
     }
     Player p1;
     Player p2;
-    protected static Chat ch1;
-    protected static Chat ch2;
+    protected static ChatProvider ch1;
+    protected static ChatProvider ch2;
     System.Windows.Threading.DispatcherTimer restTimer;
 
     public DongerBattler()
@@ -419,7 +419,7 @@ public class DongerBattler:ICloneable
     protected static void SendMessages(string msg)
     {
         ch1.SendMessage(msg);
-        if (ch2.Name != ch1.Name)
+        if (ch2.chatName != ch1.chatName)
             ch2.SendMessage(msg);
     }
     void RestTick(object sender, EventArgs e)
@@ -428,11 +428,11 @@ public class DongerBattler:ICloneable
         InitBatle("SeijaBot", ch1);
         restTimer.Stop();
     }
-    public void InitBatle(string Name, Chat ch)
+    public void InitBatle(string Name, ChatProvider ch)
     {
         if (p1.nll == true)
         {
-            p1 = new Player(Name, dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone(), GetKonfaName(ch.Name));
+            p1 = new Player(Name, dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone(), GetKonfaName(ch.chatName));
             ch.SendMessage("Первый игрок - " + p1.name + " и его донгер: \n\r" + p1.donger.Info + "\n\rОжидание второго игрока");
             ch1 = ch;
             restTimer = new System.Windows.Threading.DispatcherTimer();
@@ -446,7 +446,7 @@ public class DongerBattler:ICloneable
             restTimer.Stop();
             ch2 = ch;
             if (Name == p1.name)
-                p2 = new Player("SeijaBot", Donger.seija.Clone(), GetKonfaName(ch.Name));
+                p2 = new Player("SeijaBot", Donger.seija.Clone(), GetKonfaName(ch.chatName));
             else
             {
                 Donger temp;
@@ -455,22 +455,22 @@ public class DongerBattler:ICloneable
                     temp = dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone();
                 }
                 while (temp.dongerName == p1.donger.dongerName);
-                p2 = new Player(Name, temp.Clone(), GetKonfaName(ch.Name));
+                p2 = new Player(Name, temp.Clone(), GetKonfaName(ch.chatName));
             }
             SendMessages("Второй игрок - " + p2.name + " и его донгер: \n\r" + p2.donger.Info);
             StartBattle();
         }
     }
-    public void InitBatle(string Name, Chat ch, string donger)
+    public void InitBatle(string Name, ChatProvider ch, string donger)
     {
         Init();
         if (p1.nll == true)
         {
             Donger tmp=dongers.Find(x => x.dongerName == donger);
             if (tmp==null)
-                p1 = new Player(Name, dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone(), GetKonfaName(ch.Name));
+                p1 = new Player(Name, dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone(), GetKonfaName(ch.chatName));
             else
-                p1 = new Player(Name, tmp.Clone(), GetKonfaName(ch.Name));
+                p1 = new Player(Name, tmp.Clone(), GetKonfaName(ch.chatName));
             ch.SendMessage("Первый игрок - " + p1.name + " и его донгер: \n\r" + p1.donger.Info + "\n\rОжидание второго игрока");
             ch1 = ch;
             restTimer = new System.Windows.Threading.DispatcherTimer();
@@ -483,7 +483,7 @@ public class DongerBattler:ICloneable
             restTimer.Stop();
             ch2 = ch;
             if (Name == p1.name)
-                p2 = new Player("SeijaBot", Donger.seija.Clone(), GetKonfaName(ch.Name));
+                p2 = new Player("SeijaBot", Donger.seija.Clone(), GetKonfaName(ch.chatName));
             else
             {
                 Donger tmp=dongers.Find(x => x.dongerName == donger);
@@ -495,10 +495,10 @@ public class DongerBattler:ICloneable
                         temp = dongers[SeijaHelper.RandomProvider.GetThreadRandom().Next(0, dongers.Count)].Clone();
                     }
                     while (temp.dongerName == p1.donger.dongerName);
-                    p2 = new Player(Name, temp.Clone(), GetKonfaName(ch.Name));
+                    p2 = new Player(Name, temp.Clone(), GetKonfaName(ch.chatName));
                 }
                 else
-                    p2 = new Player(Name, tmp.Clone(), GetKonfaName(ch.Name));
+                    p2 = new Player(Name, tmp.Clone(), GetKonfaName(ch.chatName));
                 
             }
             SendMessages("Второй игрок - " + p2.name + " и его донгер: \n\r" + p2.donger.Info);

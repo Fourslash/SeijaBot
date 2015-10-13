@@ -46,7 +46,9 @@ namespace SkypeBot2
             DotaLongueChecker = new DotaLongueChecker();
             SeijaCommander.skype.ChangeUserStatus(TUserStatus.cusOnline);
             TereziCommunicator.Init();
+            IRCListener.init();
             Seija.sendMOTD();
+            
         }
 
         public static void REInit()
